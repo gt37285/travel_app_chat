@@ -40,7 +40,6 @@ export const verifySocketJWT = (
 
     const { TOKEN_SEED } = process.env
 
-    // const { uid, rol } = verify(String(token), String(TOKEN_SEED)) as any
     const { id, role } = decode(String(token)) as any
 
     if (!id) return

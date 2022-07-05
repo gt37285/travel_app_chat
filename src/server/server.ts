@@ -33,11 +33,12 @@ export default class SocketServer extends MainServer {
                 rol: Rol
             }
 
-            await this.Services.connectDisconnectUser(true, uid)
-
             socket.join(uid)
 
-            this.io.emit('usersChat', await this.Services.getUsersTeamChat())
+            this.io.emit(
+                'usersChat',
+                await this.Services.connectDisconnectUser(true, uid)
+            )
 
             // mensaje-personal
             socket.on('personal-message', async (message: Message) => {
@@ -46,7 +47,8 @@ export default class SocketServer extends MainServer {
                     createdAt: new Date(),
                 }
 
-                // const messageDB = await this.Services.saveMessage(message)
+                await this.Services.saveMessage(message)
+
                 this.io
                     .to(String(message.to))
                     .emit('personal-message', messageEmit)
@@ -57,26 +59,24 @@ export default class SocketServer extends MainServer {
             })
 
             //videoCall
-            socket.on('videoCall', ({ to, from, room, cancell }) => {
-                if (to && from && room) {
-                    this.io.to(to.uid).emit('videoCall', { from, room })
-                }
+            // socket.on('videoCall', ({ to, from, room, cancell }) => {
+            //     if (to && from && room) {
+            //         this.io.to(to.uid).emit('videoCall', { from, room })
+            //     }
 
-                if (from && cancell) {
-                    this.io.to(to.uid).emit('cancellVideoCall', { from })
-                }
-            })
+            //     if (from && cancell) {
+            //         this.io.to(to.uid).emit('cancellVideoCall', { from })
+            //     }
+            // })
 
-            socket.on('confirmVideoCall', ({ accept, from }) => {
-                this.io.to(from.uid).emit('confirmVideoCall', { accept })
-            })
+            // socket.on('confirmVideoCall', ({ accept, from }) => {
+            //     this.io.to(from.uid).emit('confirmVideoCall', { accept })
+            // })
 
             socket.on('disconnect', async () => {
-                await this.Services.connectDisconnectUser(false, uid)
-
                 this.io.emit(
                     'usersChat',
-                    await this.Services.getUsersTeamChat()
+                    await this.Services.connectDisconnectUser(false, uid)
                 )
             })
         })
