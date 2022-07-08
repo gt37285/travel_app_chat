@@ -49,6 +49,8 @@ export default class SocketServer extends MainServer {
 
                 await this.Services.saveMessage(message)
 
+                console.log(message)
+
                 this.io
                     .to(String(message.to))
                     .emit('personal-message', messageEmit)
